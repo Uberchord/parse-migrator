@@ -201,8 +201,20 @@ Migrator.prototype.migrateObject = function(object, options)
     if (self.beforeDestinationSave) {
       self.beforeDestinationSave(migratedObject, result);
     } else  {
-      migratedObject.set(result);
-    }
+      migratedObject.set(result,{
+        error: function(obj,error) {
+          console.log("Automatic set failed with error:",error," ---> Attempting to set manually");
+          for (var key in result) {
+            var entry = result[key]
+            if (entry) {
+              for(var name in entry) {
+                var value = entry[name];                
+                migratedObject.set(name,value)
+              }
+            }
+          }
+        }
+      });    }
     
     //return result;
     return migratedObject.save().then(function(){
